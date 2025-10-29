@@ -1,19 +1,21 @@
-# Use official Java 21 image
-FROM openjdk:21-jdk-slim
+# Use official OpenJDK 21 image
+FROM eclipse-temurin:21-jdk
 
 # Set working directory
 WORKDIR /app
 
-# Copy pom.xml and source code
+# Copy Maven wrapper and project files
+COPY mvnw .
+COPY .mvn .mvn
 COPY pom.xml .
 COPY src ./src
 
-# Build the application using Maven Wrapper
-COPY mvnw .
-COPY .mvn .mvn
+# Give execution permission and build the app
 RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
-# Run the Spring Boot app
+# Expose the port
 EXPOSE 8080
-CMD ["java", "-jar", "target/salonAppoinment-0.0.1-SNAPSHOT.jar"]
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "target/salonAppoinment-0.0.1-SNAPSHOT.jar"]

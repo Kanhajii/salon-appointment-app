@@ -1,10 +1,9 @@
 services:
   - type: web
     name: salon-appointment-app
-    env: java
+    env: docker
     plan: free
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/salonAppoinment-0.0.1-SNAPSHOT.jar
+    autoDeploy: true
     envVars:
       - key: PORT
         value: 8080

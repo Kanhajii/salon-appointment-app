@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Salon Appointment App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+          background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+          font-family: 'Poppins', sans-serif;
+        }
+        .login-container {
+          max-width: 420px;
+          margin: 80px auto;
+          background: white;
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-login {
+          background-color: #007bff;
+          color: white;
+          font-weight: 600;
+          border-radius: 30px;
+          padding: 10px;
+          transition: 0.3s;
+        }
+        .btn-login:hover {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="login-container">
+        <h3 class="text-center mb-4 text-primary">Login to Your Account</h3>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-login w-100">Login</button>
+        </form>
+
+        <div id="loginMsg" class="mt-3 text-center"></div>
+
+        <p class="text-center mt-3">
+            Don't have an account? <a href="register.html" class="text-primary fw-bold">Register here</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const loginData = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+      };
+
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(loginData)
+        });
+
+        if (!response.ok) throw new Error("Invalid credentials");
+
+        const result = await response.json();
+
+        // Save login info in local storage
+        localStorage.setItem("username", result.username);
+        localStorage.setItem("role", result.role);
+
+        document.getElementById("loginMsg").innerHTML = `
+          <div class="alert alert-success">
+            Welcome <b>${result.username}</b>! Login successful 🎉
+          </div>
+        `;
+
+        // Redirect after short delay based on role
+        setTimeout(() => {
+          if (result.role === "SALON_OWNER") {
+            window.location.href = "owner-dashboard.html";
+          } else {
+            window.location.href = "customer-dashboard.html";
+          }
+        }, 1500);
+
+      } catch (err) {
+        document.getElementById("loginMsg").innerHTML = `
+          <div class="alert alert-danger">❌ ${err.message}</div>
+        `;
+      }
+    });
+</script>
+
+</body>
+</html>

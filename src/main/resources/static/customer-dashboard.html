@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Dashboard | Salon Appointment App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+          background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+          font-family: 'Poppins', sans-serif;
+        }
+        .navbar {
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard {
+          margin-top: 100px;
+        }
+        .card {
+          border-radius: 15px;
+          transition: transform 0.3s;
+        }
+        .card:hover {
+          transform: scale(1.03);
+        }
+        footer {
+          margin-top: 80px;
+          background: #212529;
+          color: white;
+          text-align: center;
+          padding: 15px;
+          border-radius: 40px 40px 0 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">💇 Salon App</a>
+        <div class="d-flex">
+            <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Dashboard -->
+<div class="container dashboard">
+    <h2 class="text-center text-primary mb-4">Welcome, <span id="username"></span> 👋</h2>
+    <p class="text-center mb-5">Browse salons near you and book your appointment easily.</p>
+
+    <div class="row" id="salonList">
+        <!-- Salons will be loaded here -->
+    </div>
+</div>
+
+<footer>
+    <p>© 2025 Salon Appointment App | Developed by Kanha 💻</p>
+</footer>
+
+<script>
+    // Check login
+    const username = localStorage.getItem("username");
+    const role = localStorage.getItem("role");
+
+    if (!username || role !== "CUSTOMER") {
+      window.location.href = "login.html";
+    }
+
+    document.getElementById("username").textContent = username;
+
+    // Fetch salon list from API
+    async function loadSalons() {
+      try {
+        const response = await fetch("/api/salons");
+        const salons = await response.json();
+
+        const salonList = document.getElementById("salonList");
+        salonList.innerHTML = "";
+
+        salons.forEach(salon => {
+          salonList.innerHTML += `
+            <div class="col-md-4 mb-4">
+              <div class="card shadow p-3">
+                <h4>${salon.name}</h4>
+                <p><b>Owner:</b> ${salon.ownerName}</p>
+                <p><b>Address:</b> ${salon.address}, ${salon.city}</p>
+                <p><b>Contact:</b> ${salon.contactNumber}</p>
+                <button class="btn btn-primary w-100">Book Appointment</button>
+              </div>
+            </div>
+          `;
+        });
+      } catch (error) {
+        document.getElementById("salonList").innerHTML = `
+          <div class="alert alert-danger">❌ Failed to load salons. Try again later.</div>
+        `;
+      }
+    }
+
+    // Logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    loadSalons();
+</script>
+
+</body>
+</html>

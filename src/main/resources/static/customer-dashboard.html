@@ -35,51 +35,59 @@
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- ✅ Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
     <div class="container">
         <a class="navbar-brand fw-bold text-primary" href="#">💇 Salon App</a>
-        <div class="d-flex">
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-info" onclick="viewAppointments()">📋 View Appointments</button>
             <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
         </div>
     </div>
 </nav>
 
-<!-- Dashboard -->
+<!-- ✅ Dashboard -->
 <div class="container dashboard">
-    <h2 class="text-center text-primary mb-4">Welcome, <span id="username"></span> 👋</h2>
-    <p class="text-center mb-5">Browse salons near you and book your appointment easily.</p>
+    <h2 class="text-center text-primary mb-4">
+        Welcome, <span id="username"></span> 👋
+    </h2>
+    <p class="text-center mb-5">
+        Browse salons near you and book your appointment easily.
+    </p>
 
     <div class="row" id="salonList">
-        <!-- Salons will be loaded here -->
+        <!-- Salons will be loaded here dynamically -->
     </div>
 </div>
 
+<!-- ✅ Footer -->
 <footer>
     <p>© 2025 Salon Appointment App | Developed by Kanha 💻</p>
 </footer>
 
 <script>
-    // Check login
-    const username = localStorage.getItem("username");
+    // ✅ Check login & role
+    const name = localStorage.getItem("name");
     const role = localStorage.getItem("role");
 
-    if (!username || role !== "CUSTOMER") {
+    if (!name || role !== "CUSTOMER") {
       window.location.href = "login.html";
     }
 
-    document.getElementById("username").textContent = username;
+    document.getElementById("username").textContent = name || "Customer";
 
-    // Fetch salon list from API
+    // ✅ Load salons from backend
     async function loadSalons() {
       try {
         const response = await fetch("/api/salons");
         const salons = await response.json();
 
+        console.log("Loaded salons:", salons);
+
         const salonList = document.getElementById("salonList");
         salonList.innerHTML = "";
 
-        salons.forEach(salon => {
+        salons.forEach((salon) => {
           salonList.innerHTML += `
             <div class="col-md-4 mb-4">
               <div class="card shadow p-3">
@@ -87,24 +95,51 @@
                 <p><b>Owner:</b> ${salon.ownerName}</p>
                 <p><b>Address:</b> ${salon.address}, ${salon.city}</p>
                 <p><b>Contact:</b> ${salon.contactNumber}</p>
-                <button class="btn btn-primary w-100">Book Appointment</button>
+                <button class="btn btn-primary w-100" onclick="bookAppointment('${salon.id}', '${salon.name}')">
+                  📅 Book Appointment
+                </button>
               </div>
             </div>
           `;
         });
       } catch (error) {
+        console.error("Error loading salons:", error);
         document.getElementById("salonList").innerHTML = `
-          <div class="alert alert-danger">❌ Failed to load salons. Try again later.</div>
+          <div class="alert alert-danger text-center">
+            ❌ Failed to load salons. Please try again later.
+          </div>
         `;
       }
     }
 
-    // Logout
+    // ✅ Book appointment handler
+    function bookAppointment(salonId, salonName) {
+      console.log("Salon ID:", salonId);
+      console.log("Salon Name:", salonName);
+
+      if (!salonId || salonId === "undefined") {
+        alert("Salon ID not found! Please try again.");
+        return;
+      }
+
+      localStorage.setItem("selectedSalonId", salonId);
+      localStorage.setItem("selectedSalonName", salonName);
+
+      window.location.href = "book-appointment.html";
+    }
+
+    // ✅ View Appointments button
+    function viewAppointments() {
+      window.location.href = "my-appointments.html";
+    }
+
+    // ✅ Logout
     function logout() {
       localStorage.clear();
       window.location.href = "login.html";
     }
 
+    // ✅ Load salons on page load
     loadSalons();
 </script>
 

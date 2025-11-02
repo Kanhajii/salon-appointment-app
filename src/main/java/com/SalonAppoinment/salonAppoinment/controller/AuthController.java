@@ -21,9 +21,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO request) {
         try {
-            User user = new User(request.getUsername(), request.getPassword(), request.getRole(), request.getEmail(), request.getContactNumber());
+            User user = new User(request.getName(), request.getUsername(), request.getPassword(), request.getRole(), request.getEmail(), request.getContactNumber());
             User saved = userService.registerUser(user);
-            return ResponseEntity.ok(new UserResponseDTO(saved.getId(), saved.getUsername(), saved.getRole()));
+            return ResponseEntity.ok(new UserResponseDTO(saved.getId(), saved.getUsername(), saved.getUsername(), saved.getRole()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -34,7 +34,7 @@ public class AuthController {
         Optional<User> userOpt = userService.loginUser(request.getUsername(), request.getPassword());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            return ResponseEntity.ok(new UserResponseDTO(user.getId(), user.getUsername(), user.getRole()));
+            return ResponseEntity.ok(new UserResponseDTO(user.getId(), user.getUsername(),user.getRole(), user.getName()));
         } else {
             return ResponseEntity.status(401).body("Invalid username or password");
         }

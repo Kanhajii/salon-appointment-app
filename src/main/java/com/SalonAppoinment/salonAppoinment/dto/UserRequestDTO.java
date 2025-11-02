@@ -2,6 +2,7 @@ package com.SalonAppoinment.salonAppoinment.dto;
 
 public class UserRequestDTO {
     // UserDTO or RegisterRequestDTO
+    private String name;
     private String username;
     private String password;
     private String role;
@@ -35,6 +36,14 @@ public class UserRequestDTO {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
 

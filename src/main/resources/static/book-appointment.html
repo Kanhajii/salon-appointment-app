@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Appointment | Salon App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+          background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+          font-family: 'Poppins', sans-serif;
+        }
+        .container {
+          max-width: 600px;
+          margin-top: 100px;
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          padding: 30px;
+        }
+        .btn-primary {
+          width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-white fixed-top shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary ms-3">💇 Salon App</a>
+        <button class="btn btn-outline-secondary me-3" onclick="goBack()">⬅ Back</button>
+    </div>
+</nav>
+
+<div class="container">
+    <h3 class="text-center text-primary mb-4">Book Appointment</h3>
+
+    <div id="salonDetails" class="text-center mb-4"></div>
+
+    <form id="appointmentForm">
+        <div class="mb-3">
+            <label class="form-label">Select Date</label>
+            <input type="date" id="date" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Select Time</label>
+            <input type="time" id="time" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Service</label>
+            <select id="service" class="form-select" required>
+                <option value="">Choose a service</option>
+                <option>Haircut</option>
+                <option>Beard Trim</option>
+                <option>Facial</option>
+                <option>Hair Spa</option>
+                <option>Massage</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+
+    <div id="msg" class="mt-4 text-center"></div>
+</div>
+
+<script>
+    // ✅ Fetch stored details from localStorage
+    const salonId = localStorage.getItem("selectedSalonId");
+    const salonName = localStorage.getItem("selectedSalonName");
+    const customerUsername = localStorage.getItem("username");
+    const customerName = localStorage.getItem("name");
+
+    console.log("Salon ID:", salonId);
+    console.log("Salon Name:", salonName);
+    console.log("Customer Username:", customerUsername);
+    console.log("Customer Name:", customerName);
+
+    if (!salonId || !salonName || !customerUsername) {
+      alert("Salon or customer details missing. Please select a salon again.");
+      window.location.href = "customer-dashboard.html";
+    }
+
+    document.getElementById("salonDetails").innerHTML = `
+      <h5>${salonName}</h5>
+      <p class="text-muted">Booking as <b>${customerName}</b></p>
+    `;
+
+    // ✅ On form submit
+    document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
+      const service = document.getElementById("service").value;
+
+      if (!date || !time || !service) {
+        alert("Please fill all details");
+        return;
+      }
+
+      const booking = {
+        salonId: parseInt(salonId),
+        salonName,
+        customerUsername,
+        customerName,
+        serviceName: service,
+        appointmentDate: date,
+        appointmentTime: time
+      };
+
+      console.log("📦 Sending booking payload:", booking);
+
+      try {
+        const res = await fetch("/api/appointments/book", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(booking)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("msg").innerHTML = `
+            <div class="alert alert-success">
+              ✅ Appointment booked successfully!<br>
+              Salon: <b>${data.salonName}</b><br>
+              Date: ${data.appointmentDate}<br>
+              Time: ${data.appointmentTime}
+            </div>
+          `;
+          document.getElementById("appointmentForm").reset();
+        } else {
+          const errText = await res.text();
+          document.getElementById("msg").innerHTML = `
+            <div class="alert alert-danger">❌ Failed to book appointment: ${errText}</div>
+          `;
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        document.getElementById("msg").innerHTML = `
+          <div class="alert alert-danger">⚠ Something went wrong!</div>
+        `;
+      }
+    });
+
+    function goBack() {
+      window.location.href = "customer-dashboard.html";
+    }
+</script>
+
+</body>
+</html>

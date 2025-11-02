@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Appointments | Salon App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+          background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+          font-family: 'Poppins', sans-serif;
+        }
+        .navbar {
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard {
+          margin-top: 100px;
+        }
+        .card {
+          border-radius: 15px;
+        }
+        footer {
+          margin-top: 60px;
+          background: #212529;
+          color: white;
+          text-align: center;
+          padding: 15px;
+          border-radius: 40px 40px 0 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">💇 Salon App</a>
+        <div class="d-flex">
+            <a href="customer-dashboard.html" class="btn btn-outline-secondary me-2">Dashboard</a>
+            <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<!-- My Appointments -->
+<div class="container dashboard">
+    <h2 class="text-center text-primary mb-4">📅 My Appointments</h2>
+    <div id="appointmentList" class="row"></div>
+</div>
+
+<footer>
+    <p>© 2025 Salon Appointment App | Developed by Kanha 💻</p>
+</footer>
+
+<script>
+    const username = localStorage.getItem("username");
+    const role = localStorage.getItem("role");
+
+    if (!username || role !== "CUSTOMER") {
+      window.location.href = "login.html";
+    }
+
+    // ✅ Load appointments for logged-in customer
+    async function loadAppointments() {
+      try {
+        const response = await fetch(`/api/appointments/customer/${username}`);
+        const appointments = await response.json();
+
+        const appointmentList = document.getElementById("appointmentList");
+        appointmentList.innerHTML = "";
+
+        if (appointments.length === 0) {
+          appointmentList.innerHTML = `
+            <div class="text-center mt-5">
+              <h5>No appointments found.</h5>
+              <a href="customer-dashboard.html" class="btn btn-primary mt-3">Book Now</a>
+            </div>
+          `;
+          return;
+        }
+
+        appointments.forEach(app => {
+          appointmentList.innerHTML += `
+            <div class="col-md-4 mb-4">
+              <div class="card shadow p-3">
+                <h5 class="text-primary">${app.salonName}</h5>
+                <p><b>Service:</b> ${app.serviceName}</p>
+                <p><b>Date:</b> ${app.appointmentDate}</p>
+                <p><b>Time:</b> ${app.appointmentTime}</p>
+                <p><b>Status:</b> <span class="badge bg-${getStatusColor(app.status)}">${app.status}</span></p>
+              </div>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error("Error loading appointments:", error);
+        document.getElementById("appointmentList").innerHTML = `
+          <div class="alert alert-danger text-center">
+            ❌ Failed to load appointments.
+          </div>
+        `;
+      }
+    }
+
+    // ✅ Color for status badges
+    function getStatusColor(status) {
+      switch (status) {
+        case "BOOKED": return "info";
+        case "COMPLETED": return "success";
+        case "CANCELLED": return "danger";
+        default: return "secondary";
+      }
+    }
+
+    // ✅ Logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    // Load appointments on page load
+    loadAppointments();
+</script>
+
+</body>
+</html>

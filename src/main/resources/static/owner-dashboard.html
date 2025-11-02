@@ -40,44 +40,67 @@
 </div>
 
 <script>
-    // Simulated user data (later you’ll use real backend login data)
-    const ownerUsername = localStorage.getItem("username") || "Owner";
-    document.getElementById("ownerName").textContent = ownerUsername;
+    // ✅ Fetch name and username
+    const ownerName = localStorage.getItem("name");
+    const ownerUsername = localStorage.getItem("username");
 
-    // Fetch salons created by this owner
-    async function loadSalons() {
-        const response = await fetch("/api/salons");
-        const salons = await response.json();
-
-        const container = document.getElementById("salonList");
-        container.innerHTML = "";
-
-        if (salons.length === 0) {
-            container.innerHTML = `<p class="text-muted text-center">No salons added yet.</p>`;
-            return;
-        }
-
-        salons.forEach(salon => {
-            const card = `
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow p-3">
-                        <h5>${salon.name}</h5>
-                        <p><b>Owner:</b> ${salon.ownerName}</p>
-                        <p><b>City:</b> ${salon.city}</p>
-                        <p><b>Contact:</b> ${salon.contactNumber}</p>
-                    </div>
-                </div>
-            `;
-            container.innerHTML += card;
-        });
+    // ✅ If not logged in, redirect
+    if (!ownerUsername) {
+        alert("Please login first!");
+        window.location.href = "login.html";
     }
 
+    // ✅ Show name if available, else show username
+    const displayName = ownerName ? ownerName : ownerUsername;
+    document.getElementById("ownerName").textContent = displayName;
+
+    // ✅ Load salons for this owner
+    async function loadSalons() {
+        try {
+            const response = await fetch(`/api/salons/owner/${ownerUsername}`);
+            if (!response.ok) throw new Error("Failed to fetch salons");
+
+            const salons = await response.json();
+            console.log("Fetched salons:", salons);
+
+            const container = document.getElementById("salonList");
+
+            if (!salons || salons.length === 0) {
+                container.innerHTML = `<p class="text-muted text-center">No salons added yet.</p>`;
+                return;
+            }
+
+            let html = "";
+            salons.forEach(salon => {
+                html += `
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow p-3">
+                            <h5>${salon.name}</h5>
+                            <p><b>Owner:</b> ${salon.ownerName}</p>
+                            <p><b>City:</b> ${salon.city}</p>
+                            <p><b>Contact:</b> ${salon.contactNumber}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        } catch (error) {
+            console.error("Error loading salons:", error);
+            document.getElementById("salonList").innerHTML =
+                `<p class="text-danger text-center">Failed to load salons.</p>`;
+        }
+    }
+
+    // ✅ Logout
     function logout() {
         localStorage.clear();
         window.location.href = "login.html";
     }
 
+    // ✅ Load data
     loadSalons();
 </script>
+
 </body>
 </html>

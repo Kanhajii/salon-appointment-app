@@ -29,6 +29,7 @@ public class SalonService {
         salon = salonRepository.save(salon);
 
         return new SalonDTO(
+                salon.getId(),
                 salon.getName(),
                 salon.getOwnerName(),
                 salon.getAddress(),
@@ -42,6 +43,7 @@ public class SalonService {
         return salonRepository.findAll()
                 .stream()
                 .map(s -> new SalonDTO(
+                        s.getId(),
                         s.getName(),
                         s.getOwnerName(),
                         s.getAddress(),
@@ -50,4 +52,13 @@ public class SalonService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    // ✅ Get salons by owner (for owner dashboard)
+    public List<SalonDTO> getSalonsByOwner(String ownerName) {
+        List<Salon> salons = salonRepository.findByOwnerName(ownerName);
+        return salons.stream()
+                .map(s -> new SalonDTO(s.getId(),s.getOwnerName(),s.getAddress(), s.getName(), s.getCity(), s.getContactNumber()))
+                .collect(Collectors.toList());
+    }
+
 }

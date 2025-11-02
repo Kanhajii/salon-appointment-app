@@ -25,10 +25,14 @@ public class User {
     @Column(length = 15)
     private String contactNumber;
 
+    @Column(nullable = false)
+    private String name;
+
 
     public User() {}
 
-    public User(String username, String password, String role, String email, String contactNumber) {
+    public User(String name,String username, String password, String role, String email, String contactNumber) {
+        this.name = name;
         this.username = username;
         this.password = password;
         this.role = role;
@@ -62,6 +66,14 @@ public class User {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
 

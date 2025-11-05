@@ -1,6 +1,9 @@
 package com.SalonAppoinment.salonAppoinment.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -27,6 +30,11 @@ public class User {
 
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference   // 👈 ye add karo
+    private List<Appointment> appointments;
+
 
 
     public User() {}
@@ -74,6 +82,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 }
 

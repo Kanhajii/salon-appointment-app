@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salon Appointments | Owner Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #f8f9fa, #e3f2fd); font-family: 'Poppins', sans-serif; }
+        .navbar { background-color: #007bff; }
+        .navbar-brand, .nav-link, .btn { color: white !important; }
+        .card { border-radius: 15px; }
+        footer { margin-top: 60px; background: #212529; color: white; text-align: center; padding: 15px; border-radius: 40px 40px 0 0; }
+        .loading { opacity: 0.6; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">💈 Salon Owner Panel</a>
+        <div class="d-flex">
+            <button class="btn btn-light" onclick="goBack()">⬅ Back</button>
+            <button class="btn btn-danger ms-2" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h2 class="text-center text-primary mb-4">Appointments for <span id="salonName"></span></h2>
+    <div id="appointmentList"></div>
+</div>
+
+<footer>
+    <p>© 2025 Salon Appointment App | Developed by Kanha 💻</p>
+</footer>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const salonName = params.get("salon");
+
+    if (!salonName) {
+      alert("Salon name not found in URL!");
+      window.location.href = "owner-dashboard.html";
+    }
+
+    document.getElementById("salonName").textContent = salonName;
+
+    async function loadAppointments() {
+      try {
+        const response = await fetch(`/api/appointments/salon/${encodeURIComponent(salonName)}`);
+        const appointments = await response.json();
+        console.log("Appointments:", appointments);
+
+        const container = document.getElementById("appointmentList");
+
+        if (!appointments || appointments.length === 0) {
+          container.innerHTML = `<div class="alert alert-info text-center">No appointments found for this salon yet.</div>`;
+          return;
+        }
+
+        let html = "";
+        appointments.forEach(app => {
+          html += `
+            <div class="card shadow p-3 mb-3">
+              <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                  <h5 class="text-primary mb-1">${app.customerName}</h5>
+                  <p class="mb-1"><b>Service:</b> ${app.serviceName}</p>
+                  <p class="mb-1"><b>Date:</b> ${app.appointmentDate}</p>
+                  <p class="mb-1"><b>Time:</b> ${app.appointmentTime}</p>
+                  <p class="mb-1"><b>Status:</b>
+                    <span class="badge bg-${app.status === 'BOOKED' ? 'primary' : app.status === 'CONFIRMED' ? 'success' : 'danger'}">${app.status}</span>
+                  </p>
+                </div>
+                <div class="mt-2">
+                  <button class="btn btn-success btn-sm me-2" onclick="updateStatus(${app.id}, 'CONFIRMED', this)">✅ Confirm</button>
+                  <button class="btn btn-danger btn-sm" onclick="updateStatus(${app.id}, 'REJECTED', this)">❌ Reject</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      } catch (error) {
+        console.error("Error loading appointments:", error);
+        document.getElementById("appointmentList").innerHTML = `<div class="alert alert-danger text-center">Failed to load appointments.</div>`;
+      }
+    }
+
+    // ✅ Updated function with correct DTO mapping
+    async function updateStatus(id, status, button) {
+      try {
+        const confirmAction = confirm(`Are you sure you want to ${status.toLowerCase()} this appointment?`);
+        if (!confirmAction) return;
+
+        const parentCard = button.closest('.card');
+        parentCard.classList.add("loading");
+
+        const requestBody = { id: id, status: status };
+
+        const response = await fetch(`/api/appointments/update-status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (response.ok) {
+          alert(`✅ Appointment ${status.toLowerCase()} successfully!\n📧 Email notification sent.`);
+          loadAppointments();
+        } else {
+          const errorText = await response.text();
+          alert("❌ Failed to update appointment status: " + errorText);
+        }
+      } catch (error) {
+        console.error("Error updating status:", error);
+        alert("⚠ Something went wrong while updating appointment!");
+      } finally {
+        const parentCard = button.closest('.card');
+        parentCard.classList.remove("loading");
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    function goBack() {
+      window.location.href = "owner-dashboard.html";
+    }
+
+    loadAppointments();
+</script>
+
+</body>
+</html>

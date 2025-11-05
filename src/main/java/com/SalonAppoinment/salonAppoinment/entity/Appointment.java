@@ -1,5 +1,6 @@
 package com.SalonAppoinment.salonAppoinment.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,6 +23,12 @@ public class Appointment {
     private LocalTime appointmentTime;  // ⏰ Time only
 
     private String status = "BOOKED";   // Default status
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference   // 👈 ye add karo
+    private User user;
+
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -50,4 +57,12 @@ public class Appointment {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

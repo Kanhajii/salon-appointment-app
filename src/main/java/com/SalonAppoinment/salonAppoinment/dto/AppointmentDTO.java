@@ -12,6 +12,7 @@ public class    AppointmentDTO {
     private String serviceName;
     private LocalDate appointmentDate;  // 📅
     private LocalTime appointmentTime;  // ⏰
+    private String userEmail;
 
     // getters/setters
     public Long getSalonId() { return salonId; }
@@ -34,4 +35,12 @@ public class    AppointmentDTO {
 
     public LocalTime getAppointmentTime() { return appointmentTime; }
     public void setAppointmentTime(LocalTime appointmentTime) { this.appointmentTime = appointmentTime; }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 }

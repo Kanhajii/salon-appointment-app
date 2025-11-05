@@ -57,7 +57,7 @@ public class SalonService {
     public List<SalonDTO> getSalonsByOwner(String ownerName) {
         List<Salon> salons = salonRepository.findByOwnerName(ownerName);
         return salons.stream()
-                .map(s -> new SalonDTO(s.getId(),s.getOwnerName(),s.getAddress(), s.getName(), s.getCity(), s.getContactNumber()))
+                .map(s -> new SalonDTO(s.getId(),s.getName(),s.getOwnerName(),s.getAddress(), s.getCity(), s.getContactNumber()))
                 .collect(Collectors.toList());
     }
 

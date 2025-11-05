@@ -40,21 +40,17 @@
 </div>
 
 <script>
-    // ✅ Fetch name and username
     const ownerName = localStorage.getItem("name");
     const ownerUsername = localStorage.getItem("username");
 
-    // ✅ If not logged in, redirect
     if (!ownerUsername) {
         alert("Please login first!");
         window.location.href = "login.html";
     }
 
-    // ✅ Show name if available, else show username
     const displayName = ownerName ? ownerName : ownerUsername;
     document.getElementById("ownerName").textContent = displayName;
 
-    // ✅ Load salons for this owner
     async function loadSalons() {
         try {
             const response = await fetch(`/api/salons/owner/${ownerUsername}`);
@@ -79,6 +75,10 @@
                             <p><b>Owner:</b> ${salon.ownerName}</p>
                             <p><b>City:</b> ${salon.city}</p>
                             <p><b>Contact:</b> ${salon.contactNumber}</p>
+                            <button class="btn btn-primary w-100 mt-2"
+                                onclick="viewAppointments('${salon.name}')">
+                                📅 View Appointments
+                            </button>
                         </div>
                     </div>
                 `;
@@ -92,13 +92,16 @@
         }
     }
 
-    // ✅ Logout
+    // ✅ View Appointments redirect
+    function viewAppointments(salonName) {
+        window.location.href = `owner-appointments.html?salon=${encodeURIComponent(salonName)}`;
+    }
+
     function logout() {
         localStorage.clear();
         window.location.href = "login.html";
     }
 
-    // ✅ Load data
     loadSalons();
 </script>
 
